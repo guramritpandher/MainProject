@@ -1,0 +1,393 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload PDF | PDF Summarizer{% endblock %}
+
+{% block extra_css %}
+<style>
+    #translatedText {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .file-upload-container {
+        border: 2px dashed var(--gray-400);
+        border-radius: 10px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        background-color: var(--gray-100);
+        cursor: pointer;
+    }
+
+    .file-upload-container:hover {
+        border-color: var(--primary-color);
+        background-color: rgba(67, 97, 238, 0.05);
+    }
+
+    .file-upload-icon {
+        font-size: 3rem;
+        color: var(--gray-500);
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="fas fa-file-upload me-2"></i>Upload PDF Document</h3>
+                </div>
+                <div class="card-body p-4">
+                    <form id="upload-form">
+                        <div class="mb-4">
+                            <label for="pdfName" class="form-label">Document Name (optional)</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-tag"></i></span>
+                                <input type="text" class="form-control" id="pdfName" placeholder="Enter a name for your PDF">
+                            </div>
+                            <small class="text-muted">If left blank, the original filename will be used.</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="pdfFile" class="form-label">Select PDF File</label>
+                            <div class="file-upload-container" id="dropZone" onclick="document.getElementById('pdfFile').click();">
+                                <div class="file-upload-icon">
+                                    <i class="fas fa-file-pdf"></i>
+                                </div>
+                                <h5>Drag & Drop your PDF here</h5>
+                                <p class="text-muted">or click to browse files</p>
+                                <input type="file" class="form-control d-none" id="pdfFile" accept=".pdf" required>
+                                <div id="fileInfo" class="mt-3 text-primary" style="display: none;">
+                                    <i class="fas fa-check-circle me-2"></i><span id="fileName"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-2">
+                            <i class="fas fa-upload me-2"></i>Upload & Summarize
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Summary Result -->
+            <div id="summaryResult" class="summary-container mt-4" style="display: none;">
+                <h4 class="summary-title"><i class="fas fa-file-alt me-2"></i>Summary</h4>
+                <div id="summaryText" class="summary-text"></div>
+            </div>
+
+            <!-- Translation Panel (Hidden by Default) -->
+            <div id="translationPanel" class="card mt-4 translation-panel" style="display: none;">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-language me-2"></i>Translate Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group mb-3">
+                        <label for="languageSelect" class="form-label">Select Target Language:</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-globe"></i></span>
+                            <select id="languageSelect" class="form-select">
+                                <!-- Languages will be loaded dynamically -->
+                            </select>
+                        </div>
+                    </div>
+                    <button id="translateBtn" class="btn btn-primary">
+                        <i class="fas fa-language me-2"></i>Translate Summary
+                    </button>
+
+                    <div id="translationLoading" class="mt-3" style="display: none;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Translating...</span>
+                        </div>
+                        <span class="ms-2">Translating... This may take a moment.</span>
+                    </div>
+                </div>
+                <div id="translationResult" class="card-body border-top" style="display: none;">
+                    <h6><i class="fas fa-language me-2"></i>Translated Summary:</h6>
+                    <div id="translatedText" class="p-3 bg-light rounded"></div>
+                    <div class="mt-3">
+                        <button id="showOriginalBtn" class="btn btn-outline-secondary">
+                            <i class="fas fa-sync-alt me-2"></i>Show Original
+                        </button>
+                        <button id="showTranslatedBtn" class="btn btn-outline-primary" style="display: none;">
+                            <i class="fas fa-language me-2"></i>Show Translated
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading Spinner (Hidden by Default) -->
+            <div id="loadingSpinner" class="text-center mt-4 spinner-container" style="display: none;">
+                <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="visually-hidden">Processing...</span>
+                </div>
+                <p class="mt-2 loading-text">Processing your PDF... Please wait.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Global variables to store summary and PDF ID
+let currentSummary = "";
+let currentPdfId = null;
+let translatedSummary = "";
+
+// Function to load available languages
+async function loadAvailableLanguages() {
+    try {
+        const token = localStorage.getItem("access_token");
+        const response = await fetch("/api/auth/available-languages/", {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            const languageSelect = document.getElementById("languageSelect");
+
+            // Clear existing options
+            languageSelect.innerHTML = "";
+
+            // Add options for each language
+            data.languages.forEach(language => {
+                const option = document.createElement("option");
+                option.value = language;
+                option.textContent = language.charAt(0).toUpperCase() + language.slice(1);
+                languageSelect.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error("Error loading languages:", error);
+    }
+}
+
+// Function to translate summary
+async function translateSummary() {
+    const languageSelect = document.getElementById("languageSelect");
+    const targetLanguage = languageSelect.value;
+    const translationLoading = document.getElementById("translationLoading");
+    const translationResult = document.getElementById("translationResult");
+    const translatedText = document.getElementById("translatedText");
+    const translateBtn = document.getElementById("translateBtn");
+
+    // Show loading indicator
+    translationLoading.style.display = "block";
+    translateBtn.disabled = true;
+
+    try {
+        const token = localStorage.getItem("access_token");
+        const response = await fetch("/api/auth/translate-summary/", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                pdf_id: currentPdfId,
+                target_language: targetLanguage
+            })
+        });
+
+        const result = await response.json();
+
+        // Hide loading indicator
+        translationLoading.style.display = "none";
+        translateBtn.disabled = false;
+
+        if (response.ok) {
+            // Store translated summary
+            translatedSummary = result.translated_summary;
+
+            // Display translated summary
+            translatedText.textContent = translatedSummary;
+            translationResult.style.display = "block";
+
+            // Show original/translated buttons
+            document.getElementById("showOriginalBtn").style.display = "inline-block";
+            document.getElementById("showTranslatedBtn").style.display = "none";
+        } else {
+            alert(result.error || "Failed to translate summary.");
+        }
+    } catch (error) {
+        console.error("Error translating summary:", error);
+        alert("An error occurred during translation. Please try again.");
+        translationLoading.style.display = "none";
+        translateBtn.disabled = false;
+    }
+}
+
+// Function to toggle between original and translated summary
+function toggleSummaryView(view) {
+    const translatedText = document.getElementById("translatedText");
+    const showOriginalBtn = document.getElementById("showOriginalBtn");
+    const showTranslatedBtn = document.getElementById("showTranslatedBtn");
+
+    if (view === "original") {
+        translatedText.textContent = currentSummary;
+        showOriginalBtn.style.display = "none";
+        showTranslatedBtn.style.display = "inline-block";
+    } else {
+        translatedText.textContent = translatedSummary;
+        showOriginalBtn.style.display = "inline-block";
+        showTranslatedBtn.style.display = "none";
+    }
+}
+
+// Function to handle file selection
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (file) {
+        document.getElementById('fileInfo').style.display = 'block';
+        document.getElementById('fileName').textContent = file.name;
+    }
+}
+
+// Function to handle drag and drop
+function handleDragOver(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    document.getElementById('dropZone').classList.add('border-primary');
+}
+
+function handleDragLeave(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    document.getElementById('dropZone').classList.remove('border-primary');
+}
+
+function handleDrop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    document.getElementById('dropZone').classList.remove('border-primary');
+
+    if (event.dataTransfer.files.length) {
+        const file = event.dataTransfer.files[0];
+        if (file.type === 'application/pdf') {
+            document.getElementById('pdfFile').files = event.dataTransfer.files;
+            document.getElementById('fileInfo').style.display = 'block';
+            document.getElementById('fileName').textContent = file.name;
+        } else {
+            alert('Please upload a PDF file.');
+        }
+    }
+}
+
+// Add event listeners for translation functionality
+document.addEventListener("DOMContentLoaded", function() {
+    // Load available languages
+    loadAvailableLanguages();
+
+    // Add event listener for translate button
+    document.getElementById("translateBtn").addEventListener("click", translateSummary);
+
+    // Add event listeners for show original/translated buttons
+    document.getElementById("showOriginalBtn").addEventListener("click", function() {
+        toggleSummaryView("original");
+    });
+
+    document.getElementById("showTranslatedBtn").addEventListener("click", function() {
+        toggleSummaryView("translated");
+    });
+
+    // Add event listeners for drag and drop
+    const dropZone = document.getElementById('dropZone');
+    dropZone.addEventListener('dragover', handleDragOver);
+    dropZone.addEventListener('dragleave', handleDragLeave);
+    dropZone.addEventListener('drop', handleDrop);
+
+    // Add event listener for file input change
+    document.getElementById('pdfFile').addEventListener('change', handleFileSelect);
+});
+
+document.getElementById("upload-form").addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const fileInput = document.getElementById("pdfFile");
+    const nameInput = document.getElementById("pdfName");
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert("Please select a PDF file.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("pdf_file", file);
+
+    // If a name is provided, use it to rename the file
+    if (nameInput.value.trim()) {
+        // Get the file extension
+        const fileName = file.name;
+        const fileExt = fileName.split('.').pop();
+
+        // Create a new file with the custom name
+        const renamedFile = new File(
+            [file],
+            `${nameInput.value.trim()}.${fileExt}`,
+            {type: file.type}
+        );
+
+        // Use the renamed file instead
+        formData.set("pdf_file", renamedFile);
+    }
+
+    // Get authentication token from localStorage
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+        alert("You're not logged in. Please login first.");
+        return;
+    }
+
+    // Hide translation panel if visible from previous upload
+    document.getElementById("translationPanel").style.display = "none";
+    document.getElementById("translationResult").style.display = "none";
+    document.getElementById("summaryResult").style.display = "none";
+
+    // Show loading spinner
+    document.getElementById("loadingSpinner").style.display = "block";
+
+    try {
+        const response = await fetch("/api/auth/upload/", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            },
+            body: formData
+        });
+
+        const result = await response.json();
+        document.getElementById("loadingSpinner").style.display = "none";
+
+        if (response.ok) {
+            // Store the summary and PDF ID
+            currentSummary = result.summary;
+            currentPdfId = result.id;
+
+            // Display the summary
+            document.getElementById("summaryText").textContent = result.summary;
+            document.getElementById("summaryResult").style.display = "block";
+
+            // Show translation panel
+            document.getElementById("translationPanel").style.display = "block";
+
+            // Scroll to summary
+            document.getElementById("summaryResult").scrollIntoView({ behavior: 'smooth' });
+        } else {
+            alert(result.error || "Failed to summarize the PDF.");
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        alert("An error occurred. Please try again.");
+        document.getElementById("loadingSpinner").style.display = "none";
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User History | PDF Summarizer</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #8b5cf6;
+            --primary-dark: #7c3aed;
+            --secondary-color: #9f75f7;
+            --accent-color: #b392f8;
+            --light-color: #f5f3ff;
+            --dark-color: #6d28d9;
+            --gray-100: #f5f3ff;
+            --gray-200: #ede9fe;
+            --gray-300: #ddd6fe;
+            --gray-400: #c4b5fd;
+            --gray-500: #a78bfa;
+            --gray-600: #8b5cf6;
+            --gray-700: #7c3aed;
+            --gray-800: #6d28d9;
+            --gray-900: #5b21b6;
+        }
+
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--light-color);
+            background-image: linear-gradient(to bottom right, rgba(179, 146, 248, 0.2), rgba(139, 92, 246, 0.1));
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: var(--gray-700);
+        }
+
+        .navbar {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color)) !important;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+            padding: 0.8rem 1rem;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: white !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-dark .navbar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            transition: all 0.3s ease;
+            border-radius: 6px;
+            margin: 0 2px;
+        }
+
+        .navbar-dark .navbar-nav .nav-link:hover,
+        .navbar-dark .navbar-nav .nav-link.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .navbar-profile-pic {
+            border: 2px solid white;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(139, 92, 246, 0.3);
+        }
+
+        .navbar-profile-pic:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+        }
+
+        .history-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+            border-radius: 0 0 50% 50% / 20%;
+        }
+
+        .history-header h1 {
+            font-weight: 700;
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .history-header p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+
+        .history-container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.15);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .history-table {
+            margin-bottom: 0;
+        }
+
+        .history-table th {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            font-weight: 500;
+            border: none;
+            padding: 1rem 1.5rem;
+        }
+
+        .history-table th:first-child {
+            border-top-left-radius: 10px;
+        }
+
+        .history-table th:last-child {
+            border-top-right-radius: 10px;
+        }
+
+        .history-table td {
+            padding: 1rem 1.5rem;
+            vertical-align: middle;
+            border-color: var(--gray-200);
+        }
+
+        .history-table tr {
+            transition: all 0.3s ease;
+        }
+
+        .history-table tr:hover {
+            background-color: var(--gray-100);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.1);
+        }
+
+        .accordion-button {
+            background: linear-gradient(to right, var(--gray-100), var(--gray-200));
+            color: var(--gray-800);
+            font-weight: 500;
+            padding: 0.75rem 1.25rem;
+            border: none;
+            border-radius: 8px !important;
+            box-shadow: 0 2px 5px rgba(139, 92, 246, 0.1);
+        }
+
+        .accordion-button:not(.collapsed) {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .accordion-button:focus {
+            box-shadow: 0 0 0 0.25rem rgba(139, 92, 246, 0.25);
+        }
+
+        .accordion-body {
+            background-color: white;
+            padding: 1.25rem;
+            border-radius: 0 0 8px 8px;
+            color: var(--gray-700);
+            line-height: 1.6;
+            border: 1px solid var(--gray-200);
+            border-top: none;
+        }
+
+        .btn-action {
+            border-radius: 20px;
+            padding: 0.4rem 1rem;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 0.25rem;
+        }
+
+        .btn-action i {
+            margin-right: 0.5rem;
+        }
+
+        .btn-chat {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+        }
+
+        .btn-chat:hover {
+            background: linear-gradient(to right, var(--secondary-color), var(--primary-color));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(139, 92, 246, 0.2);
+            color: white;
+        }
+
+        .btn-delete {
+            background: linear-gradient(to right, #f87171, #ef4444);
+            color: white;
+            border: none;
+        }
+
+        .btn-delete:hover {
+            background: linear-gradient(to right, #ef4444, #dc2626);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.1);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .empty-state h3 {
+            color: var(--gray-800);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state p {
+            color: var(--gray-600);
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-upload {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .btn-upload:hover {
+            background: linear-gradient(to right, var(--secondary-color), var(--primary-color));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.2);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'about' %}">
+            <i class="fas fa-file-pdf me-2"></i>PDF Summarizer
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="{% url 'upload_pdf' %}">
+                    <i class="fas fa-upload me-1"></i> Upload PDF
+                </a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'chatbot_page' %}">
+                    <i class="fas fa-comments me-1"></i> Chatbot
+                </a></li>
+                <li class="nav-item"><a class="nav-link" href="/pdf_library/">
+                    <i class="fas fa-book me-1"></i> PDF Library
+                </a></li>
+                <li class="nav-item"><a class="nav-link active" href="{% url 'history_page' %}">
+                    <i class="fas fa-history me-1"></i> History
+                </a></li>
+                <li class="nav-item"><a class="nav-link text-danger" href="#" onclick="logout()">
+                    <i class="fas fa-sign-out-alt me-1"></i> Logout
+                </a></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link" href="{% url 'profile_page' %}" id="profileDropdown" role="button">
+                        <img id="navbar-profile-pic" src="" alt="Profile" class="rounded-circle navbar-profile-pic" width="35" height="35" style="object-fit: cover;">
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- History Header -->
+<header class="history-header">
+    <div class="container">
+        <h1>Your Upload History</h1>
+        <p>View and manage all your previously uploaded documents</p>
+    </div>
+</header>
+
+<!-- User History -->
+<div class="container">
+    <div class="history-container">
+        <table class="table history-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>PDF Name</th>
+                    <th>Summary</th>
+                    <th>Date Uploaded</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="history-table"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    async function loadHistory() {
+        const accessToken = localStorage.getItem("access_token");
+
+        if (!accessToken) {
+            alert("Please log in first.");
+            window.location.href = "/api/auth/login_page/";
+            return;
+        }
+
+        const response = await fetch("/api/auth/history/", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${accessToken}`,
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (!response.ok) {
+            alert("Session expired or unauthorized. Redirecting to login...");
+            localStorage.removeItem("access_token");
+            window.location.href = "/login/";
+            return;
+        }
+
+        const history = await response.json();
+
+        const tableBody = document.getElementById("history-table");
+
+        if (history.length === 0) {
+            // Replace with a nicer empty state
+            document.querySelector('.history-container').style.display = 'none';
+            const emptyState = document.createElement('div');
+            emptyState.className = 'empty-state';
+            emptyState.innerHTML = `
+                <i class="fas fa-history"></i>
+                <h3>No PDFs in Your History</h3>
+                <p>Upload your first PDF to get started with summaries and chat</p>
+                <a href="{% url 'upload_pdf' %}" class="btn-upload">
+                    <i class="fas fa-upload me-2"></i>Upload Your First PDF
+                </a>
+            `;
+            document.querySelector('.container').appendChild(emptyState);
+            return;
+        }
+        // If we have history, make sure the table is visible
+        document.querySelector('.history-container').style.display = 'block';
+
+        tableBody.innerHTML = history.map((item, index) => `
+    <tr id="pdf-row-${item.id}">
+        <td>${index + 1}</td>
+        <td>${item.pdf_name || 'Unnamed PDF'}</td>
+        <td>
+            <div class="accordion" id="accordion-${index}">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading-${index}">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-${index}" aria-expanded="false" aria-controls="collapse-${index}">
+                            <i class="fas fa-file-alt me-2"></i>View Summary
+                        </button>
+
+                    </h2>
+                    <div id="collapse-${index}" class="accordion-collapse collapse" aria-labelledby="heading-${index}">
+
+                        <div class="accordion-body" style="white-space: pre-wrap;">
+                            ${item.summary || 'No summary available'}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </td>
+        <td>${new Date(item.uploaded_at).toLocaleString()}</td>
+        <td>
+            <div class="d-flex">
+                <a href="/pdf_library/" class="btn-action btn-chat" onclick="localStorage.setItem('selected_pdf_id', '${item.id}')">
+                    <i class="fas fa-comments"></i>Chat
+                </a>
+                <button class="btn-action btn-delete" onclick="deletePDF(${item.id}, '${item.pdf_name || 'Unnamed PDF'}')">
+                    <i class="fas fa-trash-alt"></i>Delete
+                </button>
+            </div>
+        </td>
+    </tr>
+`).join("");
+
+    }
+
+    document.addEventListener("DOMContentLoaded", loadHistory);
+
+// Delete PDF function
+async function deletePDF(pdfId, pdfName) {
+    if (!confirm(`Are you sure you want to delete "${pdfName}"? This will also delete all chat history associated with this PDF and cannot be undone.`)) {
+        return; // User cancelled
+    }
+
+    const accessToken = localStorage.getItem("access_token");
+
+    if (!accessToken) {
+        alert("You're not logged in. Please login first.");
+        window.location.href = "/api/auth/login_page/";
+        return;
+    }
+
+    try {
+        // Show loading state
+        const row = document.getElementById(`pdf-row-${pdfId}`);
+        if (row) {
+            row.style.backgroundColor = 'rgba(139, 92, 246, 0.05)';
+            const deleteBtn = row.querySelector(".btn-delete");
+            deleteBtn.disabled = true;
+            deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Deleting...';
+            deleteBtn.style.opacity = '0.7';
+        }
+
+        const response = await fetch(`/api/auth/delete_pdf/${pdfId}/`, {
+            method: "DELETE",
+            headers: {
+                "Authorization": `Bearer ${accessToken}`,
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to delete PDF");
+        }
+
+        const result = await response.json();
+        console.log(result.message);
+
+        // Remove the row from the table with animation
+        if (row) {
+            row.style.transition = "opacity 0.5s ease";
+            row.style.opacity = "0";
+            setTimeout(() => {
+                row.remove();
+
+                // Renumber the remaining rows
+                const rows = document.querySelectorAll("#history-table tr");
+                rows.forEach((row, index) => {
+                    row.querySelector("td:first-child").textContent = index + 1;
+                });
+
+                // Show message if no PDFs left
+                if (rows.length === 0) {
+                    // Hide the table container
+                    document.querySelector('.history-container').style.display = 'none';
+
+                    // Create a nicer empty state
+                    const emptyState = document.createElement('div');
+                    emptyState.className = 'empty-state';
+                    emptyState.innerHTML = `
+                        <i class="fas fa-history"></i>
+                        <h3>No PDFs in Your History</h3>
+                        <p>Upload your first PDF to get started with summaries and chat</p>
+                        <a href="{% url 'upload_pdf' %}" class="btn-upload">
+                            <i class="fas fa-upload me-2"></i>Upload Your First PDF
+                        </a>
+                    `;
+                    document.querySelector('.container').appendChild(emptyState);
+                }
+
+            }, 500);
+        }
+
+        // Show success message
+        alert(result.message);
+
+    } catch (error) {
+        console.error("Error deleting PDF:", error);
+        alert("Failed to delete PDF. Please try again later.");
+
+        // Reset the row if it exists
+        const row = document.getElementById(`pdf-row-${pdfId}`);
+        if (row) {
+            row.style.backgroundColor = '';
+            const deleteBtn = row.querySelector(".btn-delete");
+            deleteBtn.disabled = false;
+            deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>Delete';
+            deleteBtn.style.opacity = '1';
+        }
+    }
+}
+
+// Logout function
+async function logout() {
+        const accessToken = localStorage.getItem("access_token");
+        const refreshToken = localStorage.getItem("refresh_token");
+
+        if (!accessToken || !refreshToken) {
+            alert("You are already logged out.");
+            window.location.href = "/api/auth/login_page/";
+            return;
+        }
+
+        try {
+            const response = await fetch("/api/auth/logout/", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${accessToken}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ refresh: refreshToken })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                localStorage.removeItem("access_token");
+                localStorage.removeItem("refresh_token");
+                alert("Logout successful!");
+                window.location.href = "/api/auth/login_page/";
+            } else {
+                alert("Logout failed: " + (result.detail || result.error));
+                window.location.href = "/api/auth/login_page/";
+            }
+        } catch (error) {
+            console.error("Error during logout:", error);
+            alert("Something went wrong.");
+            window.location.href = "api/auth/login_page/";
+        }
+    }
+    async function loadUserProfile() {
+    const accessToken = localStorage.getItem("access_token");
+    if (!accessToken) return;
+
+    const response = await fetch("http://127.0.0.1:8000/api/auth/profile/", {
+        method: "GET",
+        headers: {
+            "Authorization": `Bearer ${accessToken}`
+        }
+    });
+
+    if (response.ok) {
+        const data = await response.json();
+        const profilePic = data.profile_picture;
+        const profilePicElement = document.getElementById("navbar-profile-pic");
+
+        if (profilePic && profilePicElement) {
+    profilePicElement.src = profilePic.startsWith("/media/")
+        ? `http://127.0.0.1:8000${profilePic}`
+        : profilePic;
+
+    profilePicElement.style.cursor = "pointer";
+    profilePicElement.title = "View Profile";
+
+    profilePicElement.addEventListener("click", () => {
+        window.location.href = "/api/auth/profile_page/";
+    });
+}
+
+    } else {
+        console.error("Failed to fetch user profile.");
+    }
+}
+
+document.addEventListener("DOMContentLoaded", loadUserProfile);
+
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome | PDF Summarizer{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container text-center">
+        <h1 class="hero-title">Transform Your PDFs with AI</h1>
+        <p class="hero-subtitle">Upload your documents, get instant summaries, and chat with your PDFs using our advanced AI-powered tools.</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'login_page' %}" class="btn btn-light btn-lg"><i class="fas fa-sign-in-alt me-2"></i>Login</a>
+            <a href="{% url 'register_page' %}" class="btn btn-outline-light btn-lg"><i class="fas fa-user-plus me-2"></i>Sign Up Free</a>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="container my-5">
+    <h2 class="text-center mb-5">Powerful Features at Your Fingertips</h2>
+
+    <div class="row g-4">
+        <!-- Feature 1 -->
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h3 class="feature-title">Smart Summarization</h3>
+                <p class="feature-description">Our AI generates concise, accurate summaries of your PDFs, saving you hours of reading time.</p>
+            </div>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h3 class="feature-title">Interactive Chatbot</h3>
+                <p class="feature-description">Ask questions about your documents and get instant, accurate answers from our AI-powered chatbot.</p>
+            </div>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-language"></i>
+                </div>
+                <h3 class="feature-title">Multilingual Support</h3>
+                <p class="feature-description">Translate your summaries into multiple languages including Hindi, Spanish, French, and more.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="bg-light py-5 my-5">
+    <div class="container">
+        <h2 class="text-center mb-5">How It Works</h2>
+
+        <div class="row g-4 align-items-center">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h5 class="card-title"><i class="fas fa-upload text-primary me-2"></i>1. Upload Your PDF</h5>
+                        <p class="card-text">Simply upload any PDF document to our secure platform.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h5 class="card-title"><i class="fas fa-robot text-primary me-2"></i>2. AI Processing</h5>
+                        <p class="card-text">Our advanced AI analyzes and processes your document.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h5 class="card-title"><i class="fas fa-file-alt text-primary me-2"></i>3. Get Your Summary</h5>
+                        <p class="card-text">Receive a concise, accurate summary of your document's content.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h5 class="card-title"><i class="fas fa-comments text-primary me-2"></i>4. Chat & Translate</h5>
+                        <p class="card-text">Ask questions about your document or translate summaries to other languages.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="container text-center my-5">
+    <div class="card bg-primary text-white p-5">
+        <div class="card-body">
+            <h2 class="mb-4">Ready to Get Started?</h2>
+            <p class="lead mb-4">Join thousands of users who save time with our PDF summarization tools.</p>
+            <a href="{% url 'register_page' %}" class="btn btn-light btn-lg px-5">Sign Up Now</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

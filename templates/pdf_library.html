@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Library | PDF Summarizer</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #8b5cf6;
+            --primary-dark: #7c3aed;
+            --secondary-color: #9f75f7;
+            --accent-color: #b392f8;
+            --light-color: #f5f3ff;
+            --dark-color: #6d28d9;
+            --gray-100: #f5f3ff;
+            --gray-200: #ede9fe;
+            --gray-300: #ddd6fe;
+            --gray-400: #c4b5fd;
+            --gray-500: #a78bfa;
+            --gray-600: #8b5cf6;
+            --gray-700: #7c3aed;
+            --gray-800: #6d28d9;
+            --gray-900: #5b21b6;
+        }
+
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--light-color);
+            background-image: linear-gradient(to bottom right, rgba(179, 146, 248, 0.2), rgba(139, 92, 246, 0.1));
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: var(--gray-700);
+        }
+
+        .navbar {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color)) !important;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+            padding: 0.8rem 1rem;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: white !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-dark .navbar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            transition: all 0.3s ease;
+            border-radius: 6px;
+            margin: 0 2px;
+        }
+
+        .navbar-dark .navbar-nav .nav-link:hover,
+        .navbar-dark .navbar-nav .nav-link.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .navbar-profile-pic {
+            border: 2px solid white;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(139, 92, 246, 0.3);
+        }
+
+        .navbar-profile-pic:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+        }
+
+        .library-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+            border-radius: 0 0 50% 50% / 20%;
+        }
+
+        .library-header h1 {
+            font-weight: 700;
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .library-header p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+
+        .pdf-selector-card {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.15);
+            overflow: hidden;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .pdf-selector-card:hover {
+            box-shadow: 0 15px 40px rgba(139, 92, 246, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .pdf-selector-header {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.25rem 1.5rem;
+            border-bottom: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .pdf-selector-header i {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+        }
+
+        .pdf-selector-header h5 {
+            font-weight: 600;
+            margin-bottom: 0;
+        }
+
+        .form-select {
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            border: 1px solid var(--gray-300);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: white;
+        }
+
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(139, 92, 246, 0.25);
+        }
+
+        .pdf-info-card {
+            background: linear-gradient(to right, var(--gray-100), var(--gray-200));
+            border: none;
+            border-radius: 10px;
+            padding: 1.25rem;
+            margin-top: 1rem;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.1);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .pdf-info-card h5 {
+            color: var(--gray-800);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .pdf-info-card p {
+            color: var(--gray-600);
+            margin-bottom: 0.5rem;
+        }
+
+        .pdf-info-card small {
+            color: var(--gray-500);
+        }
+
+        .chat-card {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.15);
+            overflow: hidden;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .chat-card:hover {
+            box-shadow: 0 15px 40px rgba(139, 92, 246, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .chat-card-header {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.25rem 1.5rem;
+            border-bottom: none;
+        }
+
+        .chat-card-header h5 {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .chat-card-header small {
+            opacity: 0.8;
+        }
+
+        .clear-history-btn {
+            background-color: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            color: white;
+            border-radius: 20px;
+            padding: 0.4rem 1rem;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .clear-history-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-color: white;
+            transform: translateY(-2px);
+        }
+
+        .chat-container {
+            height: 450px;
+            overflow-y: auto;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            background-color: var(--light-color);
+            border-radius: 12px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--gray-400) var(--gray-100);
+        }
+
+        .chat-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-container::-webkit-scrollbar-track {
+            background: var(--gray-100);
+            border-radius: 10px;
+        }
+
+        .chat-container::-webkit-scrollbar-thumb {
+            background-color: var(--gray-400);
+            border-radius: 10px;
+        }
+
+        .message-container {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 1.5rem;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message {
+            background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
+            color: white;
+            border-radius: 18px 18px 0 18px;
+            padding: 0.75rem 1.25rem;
+            margin-bottom: 0.5rem;
+            max-width: 80%;
+            align-self: flex-end;
+            margin-left: auto;
+            box-shadow: 0 2px 10px rgba(139, 92, 246, 0.2);
+            position: relative;
+        }
+
+        .user-message::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: -10px;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(to right, var(--primary-dark), var(--primary-dark));
+            border-radius: 0 0 0 20px;
+            clip-path: polygon(0 0, 0% 100%, 100% 100%);
+        }
+
+        .bot-message {
+            background-color: white;
+            color: var(--gray-800);
+            border-radius: 18px 18px 18px 0;
+            padding: 0.75rem 1.25rem;
+            margin-bottom: 0.5rem;
+            max-width: 80%;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border-left: 3px solid var(--secondary-color);
+            position: relative;
+        }
+
+        .bot-message::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: -10px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 0 0 20px 0;
+            clip-path: polygon(100% 0, 0 100%, 100% 100%);
+        }
+
+        .text-muted {
+            color: var(--gray-500) !important;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+
+        .text-end {
+            text-align: right;
+        }
+
+        .chat-input-container {
+            position: relative;
+            margin-top: 1rem;
+        }
+
+        .chat-input-group {
+            display: flex;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .chat-input-group:focus-within {
+            box-shadow: 0 5px 20px rgba(139, 92, 246, 0.2);
+        }
+
+        .chat-input {
+            flex: 1;
+            border: 1px solid var(--gray-300);
+            border-right: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 30px 0 0 30px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .chat-send-btn {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0 30px 30px 0;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .chat-send-btn:hover {
+            background: linear-gradient(to right, var(--secondary-color), var(--primary-color));
+            transform: translateX(2px);
+        }
+
+        .chat-send-btn i {
+            margin-left: 0.5rem;
+        }
+
+        .chat-loading-spinner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            box-shadow: 0 5px 20px rgba(139, 92, 246, 0.15);
+        }
+
+        .spinner-border.spinner-purple {
+            color: var(--primary-color) !important;
+        }
+
+        .loading-text {
+            margin-top: 1rem;
+            font-weight: 500;
+            color: var(--primary-dark);
+        }
+
+        .no-pdfs-message {
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.1);
+        }
+
+        .no-pdfs-message i {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .no-pdfs-message p {
+            color: var(--gray-700);
+            margin-bottom: 1.5rem;
+        }
+
+        .no-pdfs-message a {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .no-pdfs-message a:hover {
+            background: linear-gradient(to right, var(--secondary-color), var(--primary-color));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'about' %}">
+            <i class="fas fa-file-pdf me-2"></i>PDF Summarizer
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="{% url 'upload_pdf' %}">
+                    <i class="fas fa-upload me-1"></i> Upload PDF
+                </a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'chatbot_page' %}">
+                    <i class="fas fa-comments me-1"></i> Chatbot
+                </a></li>
+                <li class="nav-item"><a class="nav-link active" href="#">
+                    <i class="fas fa-book me-1"></i> PDF Library
+                </a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'history_page' %}">
+                    <i class="fas fa-history me-1"></i> History
+                </a></li>
+                <li class="nav-item"><a class="nav-link text-danger" href="#" onclick="logout()">
+                    <i class="fas fa-sign-out-alt me-1"></i> Logout
+                </a></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link" href="{% url 'profile_page' %}" id="profileDropdown" role="button">
+                        <img id="navbar-profile-pic" src="" alt="Profile" class="rounded-circle navbar-profile-pic" width="35" height="35" style="object-fit: cover;">
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Library Header -->
+<header class="library-header">
+    <div class="container">
+        <h1>Your PDF Library</h1>
+        <p>Access and chat with all your previously uploaded documents</p>
+    </div>
+</header>
+
+<!-- PDF Library Interface -->
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="pdf-selector-card">
+                <div class="pdf-selector-header">
+                    <i class="fas fa-book-open"></i>
+                    <h5>Select a PDF from your library</h5>
+                </div>
+                <div class="card-body p-4">
+                    <select id="pdf-selector" class="form-select mb-3">
+                        <option value="">-- Select a PDF --</option>
+                    </select>
+
+                    <div class="text-center no-pdfs-message" id="no-pdfs-message" style="display: none;">
+                        <i class="fas fa-file-upload"></i>
+                        <p>No PDFs found in your library.</p>
+                        <a href="{% url 'upload_pdf' %}" class="btn-upload">
+                            <i class="fas fa-upload me-2"></i>Upload Your First PDF
+                        </a>
+                    </div>
+
+                    <div id="pdf-info" class="pdf-info-card" style="display: none;">
+                        <h5 id="selected-pdf-name"></h5>
+                        <p id="selected-pdf-date"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-card" id="chat-interface" style="display: none;">
+                <div class="chat-card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0">Chat with <span id="chat-pdf-name"></span></h5>
+                            <small id="chat-pdf-info" class="text-white-50"></small>
+                        </div>
+                        <button id="clear-history-btn" class="clear-history-btn" style="display: none;">
+                            <i class="fas fa-trash-alt me-1"></i>Clear History
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div id="chat-container" class="chat-container">
+                        <div class="bot-message">
+                            Hello! I'm ready to answer questions about the selected PDF. What would you like to know?
+                        </div>
+                    </div>
+
+                    <div class="chat-input-container">
+                        <div class="chat-input-group">
+                            <input type="text" id="query" class="chat-input" placeholder="Ask a question about this PDF...">
+                            <button id="ask-btn" class="chat-send-btn">
+                                Send <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- We'll use a typing indicator instead of a loading spinner -->
+                    <div id="chat-loading-spinner" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Load user's PDF library
+async function loadPDFLibrary() {
+    const accessToken = localStorage.getItem("access_token");
+
+    if (!accessToken) {
+        alert("You're not logged in. Please login first.");
+        window.location.href = "/api/auth/login_page/";
+        return;
+    }
+
+    try {
+        const response = await fetch("/api/auth/history/", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${accessToken}`,
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to fetch PDF library");
+        }
+
+        const pdfs = await response.json();
+        const selector = document.getElementById("pdf-selector");
+
+        // Clear existing options
+        selector.innerHTML = '<option value="">-- Select a PDF --</option>';
+
+        // Show message if no PDFs found
+        const noPdfsMessage = document.getElementById("no-pdfs-message");
+        if (pdfs.length === 0) {
+            noPdfsMessage.style.display = "block";
+            selector.disabled = true;
+        } else {
+            noPdfsMessage.style.display = "none";
+            selector.disabled = false;
+        }
+
+        // Add options for each PDF
+        pdfs.forEach((pdf, index) => {
+            const option = document.createElement("option");
+            option.value = pdf.id;
+
+            // Use the pdf_name field from the serializer, or fall back to a default name
+            let displayName = pdf.pdf_name || `PDF #${pdf.id}`;
+
+            // Add upload date for better context
+            const uploadDate = new Date(pdf.uploaded_at).toLocaleDateString();
+            displayName = `${displayName} (${uploadDate})`;
+
+            option.textContent = displayName;
+            option.dataset.uploadedAt = pdf.uploaded_at;
+            option.dataset.originalName = pdf.pdf_name; // Store original name for reference
+            selector.appendChild(option);
+        });
+
+        // Add event listener to the selector
+        selector.addEventListener("change", handlePDFSelection);
+
+        // Check if there's a previously selected PDF in localStorage
+        const selectedPdfId = localStorage.getItem("selected_pdf_id");
+        if (selectedPdfId) {
+            // Find the option with this ID
+            const option = Array.from(selector.options).find(opt => opt.value === selectedPdfId);
+            if (option) {
+                // Select this option
+                selector.value = selectedPdfId;
+                // Trigger the change event to load this PDF
+                handlePDFSelection();
+            } else {
+                // If the PDF no longer exists, remove it from localStorage
+                localStorage.removeItem("selected_pdf_id");
+            }
+        }
+    } catch (error) {
+        console.error("Error loading PDF library:", error);
+        alert("Failed to load your PDF library. Please try again later.");
+    }
+}
+
+// Handle PDF selection
+function handlePDFSelection() {
+    const selector = document.getElementById("pdf-selector");
+    const pdfInfo = document.getElementById("pdf-info");
+    const chatInterface = document.getElementById("chat-interface");
+    const selectedPDFName = document.getElementById("selected-pdf-name");
+    const selectedPDFDate = document.getElementById("selected-pdf-date");
+    const chatPDFName = document.getElementById("chat-pdf-name");
+
+    // Save selected PDF ID to localStorage
+    if (selector.value) {
+        localStorage.setItem("selected_pdf_id", selector.value);
+        const selectedOption = selector.options[selector.selectedIndex];
+        const pdfName = selectedOption.textContent;
+        const uploadedAt = new Date(selectedOption.dataset.uploadedAt).toLocaleString();
+        const pdfId = selector.value;
+
+        // Update PDF info with more details
+        selectedPDFName.textContent = pdfName;
+        selectedPDFDate.textContent = `Uploaded on: ${uploadedAt}`;
+        selectedPDFDate.innerHTML += `<br><small class="text-muted">PDF ID: ${pdfId}</small>`;
+        pdfInfo.style.display = "block";
+
+        // Update chat interface
+        chatPDFName.textContent = pdfName;
+        document.getElementById("chat-pdf-info").textContent = `ID: ${pdfId} | Uploaded: ${uploadedAt}`;
+        chatInterface.style.display = "block";
+
+        // Clear previous chat and load chat history
+        const chatContainer = document.getElementById("chat-container");
+        chatContainer.innerHTML = '<div class="bot-message">Loading chat history...</div>';
+
+        // Load chat history for this PDF
+        loadChatHistory(pdfId);
+
+        // Log selection for debugging
+        console.log(`Selected PDF: ${pdfName} (ID: ${pdfId})`);
+    } else {
+        pdfInfo.style.display = "none";
+        chatInterface.style.display = "none";
+    }
+}
+
+// Clear chat history for a specific PDF
+async function clearChatHistory(pdfId) {
+    if (!confirm("Are you sure you want to clear all chat history for this PDF? This action cannot be undone.")) {
+        return; // User cancelled
+    }
+
+    const accessToken = localStorage.getItem("access_token");
+
+    if (!accessToken) {
+        alert("You're not logged in. Please login first.");
+        window.location.href = "/api/auth/login_page/";
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/chatbot/chat_history/${pdfId}/`, {
+            method: "DELETE",
+            headers: {
+                "Authorization": `Bearer ${accessToken}`,
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to clear chat history");
+        }
+
+        const result = await response.json();
+        console.log(result.message);
+
+        // Reload chat container with empty history
+        const chatContainer = document.getElementById("chat-container");
+        chatContainer.innerHTML = '<div class="bot-message">Chat history cleared. You can start a new conversation.</div>';
+
+        // Hide clear history button
+        document.getElementById("clear-history-btn").style.display = "none";
+
+    } catch (error) {
+        console.error("Error clearing chat history:", error);
+        alert("Failed to clear chat history. Please try again later.");
+    }
+}
+
+// Load chat history for a specific PDF
+async function loadChatHistory(pdfId) {
+    const accessToken = localStorage.getItem("access_token");
+    const chatContainer = document.getElementById("chat-container");
+
+    if (!accessToken) {
+        alert("You're not logged in. Please login first.");
+        window.location.href = "/api/auth/login_page/";
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/chatbot/chat_history/${pdfId}/`, {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${accessToken}`,
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to fetch chat history");
+        }
+
+        const data = await response.json();
+
+        // Clear the container
+        chatContainer.innerHTML = '';
+
+        const clearHistoryBtn = document.getElementById("clear-history-btn");
+
+        if (data.messages.length === 0) {
+            // No chat history
+            chatContainer.innerHTML = '<div class="bot-message">Hello! I\'m ready to answer questions about this PDF. What would you like to know?</div>';
+            clearHistoryBtn.style.display = "none";
+        } else {
+            // Show clear history button
+            clearHistoryBtn.style.display = "block";
+
+            // Set up clear history button
+            clearHistoryBtn.onclick = () => clearChatHistory(pdfId);
+
+            // Display chat history
+            data.messages.forEach(message => {
+                // Format timestamp
+                const messageDate = new Date(message.created_at);
+                const formattedDate = messageDate.toLocaleString();
+
+                // Add user message with timestamp
+                const userMessageDiv = document.createElement("div");
+                userMessageDiv.className = "message-container";
+                userMessageDiv.innerHTML = `
+                    <div class="user-message">${message.query}</div>
+                    <small class="text-muted d-block text-end">${formattedDate}</small>
+                `;
+                chatContainer.appendChild(userMessageDiv);
+
+                // Add bot message
+                const botMessageDiv = document.createElement("div");
+                botMessageDiv.className = "message-container";
+                botMessageDiv.innerHTML = `
+                    <div class="bot-message">${message.response}</div>
+                    <small class="text-muted d-block">${formattedDate}</small>
+                `;
+                chatContainer.appendChild(botMessageDiv);
+            });
+
+            // Add a welcome back message
+            const welcomeBackDiv = document.createElement("div");
+            welcomeBackDiv.className = "message-container";
+            welcomeBackDiv.innerHTML = `<div class="bot-message">Welcome back! You can continue your conversation about this PDF.</div>`;
+            chatContainer.appendChild(welcomeBackDiv);
+        }
+
+        // Scroll to bottom of chat
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+    } catch (error) {
+        console.error("Error loading chat history:", error);
+        chatContainer.innerHTML = '<div class="bot-message">Failed to load chat history. You can start a new conversation.</div>';
+    }
+}
+
+// Handle asking questions
+document.addEventListener("DOMContentLoaded", function() {
+    const askButton = document.getElementById("ask-btn");
+    const queryInput = document.getElementById("query");
+
+    // Load PDF library when page loads
+    loadPDFLibrary();
+
+    // Add event listener to ask button
+    askButton.addEventListener("click", askQuestion);
+
+    // Add event listener to input for Enter key
+    queryInput.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            askQuestion();
+        }
+    });
+});
+
+async function askQuestion() {
+    const query = document.getElementById("query").value.trim();
+    const pdfSelector = document.getElementById("pdf-selector");
+    const pdfId = pdfSelector.value;
+    const chatContainer = document.getElementById("chat-container");
+    const spinner = document.getElementById("chat-loading-spinner");
+
+    if (!query) {
+        alert("Please enter a question.");
+        return;
+    }
+
+    if (!pdfId) {
+        alert("Please select a PDF first.");
+        return;
+    }
+
+    const accessToken = localStorage.getItem("access_token");
+    if (!accessToken) {
+        alert("You're not logged in. Please login first.");
+        window.location.href = "/api/auth/login_page/";
+        return;
+    }
+
+    // Get current timestamp
+    const currentTime = new Date().toLocaleString();
+
+    // Add user message to chat with timestamp
+    const userMessageDiv = document.createElement("div");
+    userMessageDiv.className = "message-container";
+    userMessageDiv.innerHTML = `
+        <div class="user-message">${query}</div>
+        <small class="text-muted d-block text-end">${currentTime}</small>
+    `;
+    chatContainer.appendChild(userMessageDiv);
+
+    // Clear input
+    document.getElementById("query").value = "";
+
+    // Show typing indicator
+    const typingIndicator = document.createElement('div');
+    typingIndicator.className = 'message-container';
+    typingIndicator.id = 'typing-indicator';
+    typingIndicator.innerHTML = `
+        <div class="bot-message typing-indicator">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+        </div>
+        <small class="text-muted d-block">Typing...</small>
+    `;
+    chatContainer.appendChild(typingIndicator);
+
+    // Add CSS for typing animation
+    if (!document.getElementById('typing-animation-style')) {
+        const style = document.createElement('style');
+        style.id = 'typing-animation-style';
+        style.textContent = `
+            .typing-indicator {
+                background-color: var(--gray-200) !important;
+                min-width: 70px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 0.5rem 1rem !important;
+            }
+            .typing-indicator .dot {
+                display: inline-block;
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background-color: var(--gray-600);
+                margin: 0 3px;
+                opacity: 0.6;
+                animation: typingAnimation 1.4s infinite ease-in-out;
+            }
+            .typing-indicator .dot:nth-child(1) {
+                animation-delay: 0s;
+            }
+            .typing-indicator .dot:nth-child(2) {
+                animation-delay: 0.2s;
+            }
+            .typing-indicator .dot:nth-child(3) {
+                animation-delay: 0.4s;
+            }
+            @keyframes typingAnimation {
+                0%, 60%, 100% {
+                    transform: translateY(0);
+                    opacity: 0.6;
+                }
+                30% {
+                    transform: translateY(-5px);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // Scroll to bottom of chat
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+
+    try {
+        const response = await fetch("/api/chatbot/pdf_chat/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${accessToken}`
+            },
+            body: JSON.stringify({ query, pdf_id: pdfId })
+        });
+
+        const result = await response.json();
+
+        // Remove typing indicator
+        const typingIndicator = document.getElementById('typing-indicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+
+        // Get response timestamp
+        const responseTime = new Date().toLocaleString();
+
+        // Add bot message to chat
+        const botMessageDiv = document.createElement("div");
+        botMessageDiv.className = "message-container";
+
+        if (result.error) {
+            botMessageDiv.innerHTML = `
+                <div class="bot-message">Error: ${result.error}</div>
+                <small class="text-muted d-block">${responseTime}</small>
+            `;
+        } else {
+            // Update PDF name if it was returned by the API
+            if (result.pdf_name) {
+                const pdfNameElement = document.getElementById("chat-pdf-name");
+                if (pdfNameElement.textContent !== result.pdf_name) {
+                    pdfNameElement.textContent = result.pdf_name;
+                    console.log(`Updated PDF name to: ${result.pdf_name}`);
+                }
+
+                // Update PDF info if available
+                if (result.uploaded_at) {
+                    const pdfInfoElement = document.getElementById("chat-pdf-info");
+                    pdfInfoElement.textContent = `ID: ${result.pdf_id} | Uploaded: ${new Date(result.uploaded_at).toLocaleString()}`;
+                }
+            }
+
+            botMessageDiv.innerHTML = `
+                <div class="bot-message">${result.answer}</div>
+                <small class="text-muted d-block">${responseTime}</small>
+            `;
+        }
+
+        chatContainer.appendChild(botMessageDiv);
+
+        // Scroll to bottom of chat
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    } catch (error) {
+        console.error("Error asking question:", error);
+
+        // Remove typing indicator
+        const typingIndicator = document.getElementById('typing-indicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+
+        // Add error message to chat
+        const errorMessageDiv = document.createElement("div");
+        errorMessageDiv.className = "message-container";
+        errorMessageDiv.innerHTML = `<div class="bot-message">Sorry, an error occurred. Please try again later.</div>`;
+        chatContainer.appendChild(errorMessageDiv);
+
+        // Scroll to bottom of chat
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+}
+
+// Logout function
+async function logout() {
+    const accessToken = localStorage.getItem("access_token");
+    const refreshToken = localStorage.getItem("refresh_token");
+
+    if (!accessToken || !refreshToken) {
+        alert("You are already logged out.");
+        window.location.href = "/api/auth/login_page/";
+        return;
+    }
+
+    try {
+        const response = await fetch("/api/auth/logout/", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${accessToken}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ refresh: refreshToken })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("refresh_token");
+            alert("Logout successful!");
+            window.location.href = "/api/auth/login_page/";
+        } else {
+            alert("Logout failed: " + (result.detail || result.error));
+            window.location.href = "/api/auth/login_page/";
+        }
+    } catch (error) {
+        console.error("Error during logout:", error);
+        alert("Something went wrong.");
+        window.location.href = "api/auth/login_page/";
+    }
+}
+
+async function loadUserProfile() {
+    const accessToken = localStorage.getItem("access_token");
+    if (!accessToken) return;
+
+    const response = await fetch("http://127.0.0.1:8000/api/auth/profile/", {
+        method: "GET",
+        headers: {
+            "Authorization": `Bearer ${accessToken}`
+        }
+    });
+
+    if (response.ok) {
+        const data = await response.json();
+        const profilePic = data.profile_picture;
+        const profilePicElement = document.getElementById("navbar-profile-pic");
+
+        if (profilePic && profilePicElement) {
+            profilePicElement.src = profilePic.startsWith("/media/")
+                ? `http://127.0.0.1:8000${profilePic}`
+                : profilePic;
+
+            profilePicElement.style.cursor = "pointer";
+            profilePicElement.title = "View Profile";
+
+            profilePicElement.addEventListener("click", () => {
+                window.location.href = "/api/auth/profile_page/";
+            });
+        }
+    } else {
+        console.error("Failed to fetch user profile.");
+    }
+}
+
+document.addEventListener("DOMContentLoaded", loadUserProfile);
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
